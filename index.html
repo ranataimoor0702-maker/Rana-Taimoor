@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lahore Crust | Global Digital Studio Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN for 3D Interactive Food Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F3E5AB',
+                            dark: '#AA8C2C',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0A0A0A;
+            color: #F5F5F7;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA8C2C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .gold-card {
+            background: linear-gradient(145deg, #141414 0%, #0D0D0D 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .gold-card:hover {
+            border-color: rgba(212, 175, 55, 0.8);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(212, 175, 55, 0.15);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="bg-[#0A0A0A] text-[#F5F5F7] antialiased selection:bg-gold selection:text-black">
+
+    <!-- Notification / Message Box (Custom modal replacing alert) -->
+    <div id="notification-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="gold-card p-8 rounded-2xl max-w-md w-full mx-4 text-center relative border border-gold/40 shadow-2xl">
+            <div class="w-12 h-12 bg-gold/10 text-gold rounded-full flex items-center justify-center mx-auto mb-4 text-xl">✨</div>
+            <h3 id="modal-title" class="font-serif text-2xl text-gold mb-2 font-bold">Lahore Crust Concierge</h3>
+            <p id="modal-message" class="text-gray-300 mb-6 text-sm leading-relaxed"></p>
+            <button onclick="closeModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-semibold tracking-wider uppercase text-xs hover:opacity-95 transition-all shadow-lg">
+                Continue Experience
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-[#0A0A0A]/80 backdrop-blur-md border-b border-gold/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center font-serif font-bold text-black text-lg shadow-md">
+                    LC
+                </div>
+                <div>
+                    <span class="font-serif text-lg tracking-wider font-bold gold-gradient-text block">Lahore Crust</span>
+                    <span class="text-[9px] uppercase tracking-widest text-gray-400">Global Digital Studio Edition</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium tracking-wide">
+                <a href="#hero" class="text-gray-300 hover:text-gold transition-colors">Experience</a>
+                <a href="#interactive-3d" class="text-gray-300 hover:text-gold transition-colors">3D Showcase</a>
+                <a href="#collection" class="text-gray-300 hover:text-gold transition-colors">Masterpieces</a>
+                <a href="#artisans" class="text-gray-300 hover:text-gold transition-colors">Heritage</a>
+            </nav>
+
+            <a href="https://wa.me/" onclick="openWhatsAppCheckout('General Inquiry'); return false;" class="flex items-center space-x-2 bg-gold/10 hover:bg-gold/25 border border-gold/40 px-4 py-2.5 rounded-full transition-all text-xs font-semibold uppercase tracking-wider text-gold">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                <span>Instant WhatsApp</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen pt-32 pb-20 flex items-center justify-center px-6 overflow-hidden">
+        <!-- Ambient Background Glows -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-gold/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+            <!-- Left Text Content -->
+            <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-medium tracking-widest uppercase">
+                    <span>✨ Next-Gen Liquid Metal Architecture</span>
+                </div>
+                <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+                    The Future of <br>
+                    <span class="gold-gradient-text italic font-normal">Artisan Gastronomy</span>
+                </h1>
+                <p class="text-gray-400 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
+                    Transcending traditional local boundaries. Lahore Crust delivers high-performance 3D digital luxury and handcrafted patisserie directly to international connoisseurs and elite clientele.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                    <a href="#interactive-3d" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-bold text-sm tracking-wider uppercase hover:opacity-95 transition-all shadow-xl hover:shadow-gold/20 text-center">
+                        Explore Signature Menu
+                    </a>
+                    <a href="https://wa.me/" onclick="openWhatsAppCheckout('Concierge Consultation'); return false;" class="w-full sm:w-auto px-8 py-4 rounded-full gold-card text-gold font-bold text-sm tracking-wider uppercase hover:bg-gold/10 transition-all text-center">
+                        Global Concierge (WhatsApp)
+                    </a>
+                </div>
+
+                <!-- Stats Bar -->
+                <div class="grid grid-cols-3 gap-6 pt-8 border-t border-gold/10 max-w-lg mx-auto lg:mx-0">
+                    <div>
+                        <div class="font-serif text-2xl font-bold gold-gradient-text">0.1s</div>
+                        <div class="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Render Latency</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-2xl font-bold gold-gradient-text">100%</div>
+                        <div class="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Custom WebGL</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-2xl font-bold gold-gradient-text">Global</div>
+                        <div class="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Express Delivery</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Hero 3D Preview Card -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="w-full max-w-md gold-card p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-gold/30 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                        Limited Batch
+                    </div>
+                    
+                    <!-- 3D Canvas Container for Hero Item -->
+                    <div id="hero-canvas-container" class="w-full h-80 rounded-2xl relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#080808] cursor-grab active:cursor-grabbing">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-xs tracking-widest uppercase pointer-events-none">
+                            Loading 3D Object...
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-serif text-xl font-bold text-gold">Liquid Gold Croissant</h3>
+                            <span class="font-serif text-xl font-bold text-white">$18 <span class="text-xs text-gold">/ Rs. 5,000</span></span>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">Infused with 24K edible gold & single-origin dark cocoa.</p>
+                        <button onclick="openWhatsAppCheckout('Liquid Gold Croissant - $18')" class="w-full py-3 rounded-xl bg-gold/10 hover:bg-gold hover:text-black text-gold border border-gold/40 text-xs font-bold tracking-widest uppercase transition-all duration-300">
+                            Instant WhatsApp Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive 3D Food Showcase Section -->
+    <section id="interactive-3d" class="py-24 px-6 border-t border-gold/10 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-gold text-xs font-semibold tracking-widest uppercase">Interactive 3D Experience</span>
+                <h2 class="font-serif text-4xl sm:text-5xl font-bold">Rotate & Inspect Masterpieces</h2>
+                <p class="text-gray-400 text-sm">Drag or swipe across any item below to interactively rotate the 3D model in real-time. View pricing and order instantly.</p>
+            </div>
+
+            <!-- Grid of Interactive 3D Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card 1: 3D Rotating Burger -->
+                <div class="gold-card p-6 rounded-3xl relative flex flex-col justify-between group">
+                    <div class="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-gold/30 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                        Signature Burger
+                    </div>
+                    <div>
+                        <div id="canvas-burger" class="w-full h-72 rounded-2xl bg-gradient-to-b from-[#161616] to-[#0A0A0A] relative overflow-hidden cursor-grab active:cursor-grabbing"></div>
+                        <div class="mt-6 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-serif text-xl font-bold text-white">Truffle Wagyu Burger</h3>
+                                <span class="font-serif text-xl font-bold gold-gradient-text">$24</span>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-relaxed">A5 Wagyu patty, black truffle aioli, aged Gruyère on a brioche crust.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gold/10">
+                        <button onclick="openWhatsAppCheckout('Truffle Wagyu Burger - $24')" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-semibold text-xs tracking-wider uppercase hover:opacity-95 transition-all shadow-md">
+                            Order on WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2: 3D Rotating Pizza -->
+                <div class="gold-card p-6 rounded-3xl relative flex flex-col justify-between group">
+                    <div class="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-gold/30 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                        Wood Fired
+                    </div>
+                    <div>
+                        <div id="canvas-pizza" class="w-full h-72 rounded-2xl bg-gradient-to-b from-[#161616] to-[#0A0A0A] relative overflow-hidden cursor-grab active:cursor-grabbing"></div>
+                        <div class="mt-6 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-serif text-xl font-bold text-white">Gold Leaf Margherita</h3>
+                                <span class="font-serif text-xl font-bold gold-gradient-text">$32</span>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-relaxed">San Marzano DOP, buffalo mozzarella, edible gold leaf flakes & basil.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gold/10">
+                        <button onclick="openWhatsAppCheckout('Gold Leaf Margherita Pizza - $32')" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-semibold text-xs tracking-wider uppercase hover:opacity-95 transition-all shadow-md">
+                            Order on WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: 3D Rotating Patisserie/Cake -->
+                <div class="gold-card p-6 rounded-3xl relative flex flex-col justify-between group">
+                    <div class="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-gold/30 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                        Patisserie
+                    </div>
+                    <div>
+                        <div id="canvas-cake" class="w-full h-72 rounded-2xl bg-gradient-to-b from-[#161616] to-[#0A0A0A] relative overflow-hidden cursor-grab active:cursor-grabbing"></div>
+                        <div class="mt-6 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-serif text-xl font-bold text-white">Royal Opera Dome</h3>
+                                <span class="font-serif text-xl font-bold gold-gradient-text">$28</span>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-relaxed">Valrhona dark chocolate mousse, hazelnut praline crunch, gold mirror glaze.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gold/10">
+                        <button onclick="openWhatsAppCheckout('Royal Opera Dome - $28')" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-semibold text-xs tracking-wider uppercase hover:opacity-95 transition-all shadow-md">
+                            Order on WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Collection Menu Section -->
+    <section id="collection" class="py-24 px-6 bg-[#0E0E0E] border-t border-gold/10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-gold text-xs font-semibold tracking-widest uppercase">Artisanal Masterpieces</span>
+                <h2 class="font-serif text-4xl sm:text-5xl font-bold">The Global Collection</h2>
+                <p class="text-gray-400 text-sm">Crafted with precision engineering and world-class culinary expertise for discerning international clients.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Item 1 -->
+                <div class="gold-card p-6 rounded-3xl space-y-4">
+                    <div class="h-48 rounded-2xl overflow-hidden bg-[#1f1f1f] relative">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80" alt="Burger" onerror="this.src='https://placehold.co/600x400/141414/D4AF37?text=Lahore+Crust+Burger'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="flex justify-between items-baseline">
+                        <h3 class="font-serif text-xl font-bold text-white">Midnight Velvet Tiramisu</h3>
+                        <span class="font-serif text-xl font-bold gold-gradient-text">$22</span>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed">Italian mascarpone layered with espresso-soaked artisanal sponge and dark cacao dust.</p>
+                    <button onclick="openWhatsAppCheckout('Midnight Velvet Tiramisu - $22')" class="w-full py-3 rounded-xl bg-gold/10 hover:bg-gold hover:text-black text-gold border border-gold/30 text-xs font-semibold tracking-wider uppercase transition-all">
+                        Order on WhatsApp
+                    </button>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="gold-card p-6 rounded-3xl space-y-4">
+                    <div class="h-48 rounded-2xl overflow-hidden bg-[#1f1f1f] relative">
+                        <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80" alt="Pizza" onerror="this.src='https://placehold.co/600x400/141414/D4AF37?text=Lahore+Crust+Pizza'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="flex justify-between items-baseline">
+                        <h3 class="font-serif text-xl font-bold text-white">Uji Matcha Opera Cake</h3>
+                        <span class="font-serif text-xl font-bold gold-gradient-text">$25</span>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed">Ceremonial grade Japanese matcha paired with almond joconde and white chocolate ganache.</p>
+                    <button onclick="openWhatsAppCheckout('Uji Matcha Opera Cake - $25')" class="w-full py-3 rounded-xl bg-gold/10 hover:bg-gold hover:text-black text-gold border border-gold/30 text-xs font-semibold tracking-wider uppercase transition-all">
+                        Order on WhatsApp
+                    </button>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="gold-card p-6 rounded-3xl space-y-4">
+                    <div class="h-48 rounded-2xl overflow-hidden bg-[#1f1f1f] relative">
+                        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80" alt="Gourmet dish" onerror="this.src='https://placehold.co/600x400/141414/D4AF37?text=Lahore+Crust+Gourmet'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="flex justify-between items-baseline">
+                        <h3 class="font-serif text-xl font-bold text-white">Kashmiri Saffron Tart</h3>
+                        <span class="font-serif text-xl font-bold gold-gradient-text">$20</span>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed">Delicate pastry crust filled with saffron-infused cream, crushed pistachios, and edible florals.</p>
+                    <button onclick="openWhatsAppCheckout('Kashmiri Saffron Tart - $20')" class="w-full py-3 rounded-xl bg-gold/10 hover:bg-gold hover:text-black text-gold border border-gold/30 text-xs font-semibold tracking-wider uppercase transition-all">
+                        Order on WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 border-t border-gold/10 bg-[#0A0A0A]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-gold flex items-center justify-center font-serif font-bold text-black text-sm">
+                    LC
+                </div>
+                <span class="font-serif text-sm tracking-wider font-bold gold-gradient-text">Lahore Crust</span>
+            </div>
+            
+            <p class="text-xs text-gray-500 text-center">
+                &copy; 2026 Lahore Crust. Engineered with custom 3D WebGL by Lahore Web Works for global clients.
+            </p>
+
+            <div class="flex items-center space-x-6 text-xs text-gray-400">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="hover:text-gold transition-colors">Instagram</a>
+                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="hover:text-gold transition-colors">TikTok</a>
+                <a href="https://whatsapp.com" target="_blank" rel="noopener noreferrer" class="hover:text-gold transition-colors">WhatsApp</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for 3D Canvas Simulations & Interactions -->
+    <script>
+        // Modal Handlers
+        function openWhatsAppCheckout(itemName) {
+            const message = encodeURIComponent(`Hello Lahore Crust Team, I would like to order: ${itemName}. Please share payment and delivery details.`);
+            // Fallback modal notification to ensure smooth cross-platform experience without alert()
+            const modal = document.getElementById('notification-modal');
+            const title = document.getElementById('modal-title');
+            const msg = document.getElementById('modal-message');
+            
+            title.innerText = "Redirecting to WhatsApp";
+            msg.innerHTML = `Preparing your order for <span class="text-gold font-bold">${itemName}</span>.<br><br>Clicking continue will open your WhatsApp chat with our concierge.`;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+
+            // Trigger WhatsApp redirect after user confirmation
+            window.lastWhatsAppUrl = `https://wa.me/?text=${message}`;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('notification-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (window.lastWhatsAppUrl) {
+                    window.open(window.lastWhatsAppUrl, '_blank');
+                    window.lastWhatsAppUrl = null;
+                }
+            }, 300);
+        }
+
+        // 3D Scene Initializers using Three.js
+        window.addEventListener('load', () => {
+            initHero3D();
+            initInteractiveCard3D('canvas-burger', createBurgerMesh);
+            initInteractiveCard3D('canvas-pizza', createPizzaMesh);
+            initInteractiveCard3D('canvas-cake', createCakeMesh);
+        });
+
+        // Helper setup for interactive 3D card rotation
+        function initInteractiveCard3D(containerId, meshBuilder) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 6;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xD4AF37, 3, 50);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            const pointLight2 = new THREE.PointLight(0xffffff, 1.5, 50);
+            pointLight2.position.set(-5, -5, 2);
+            scene.add(pointLight2);
+
+            // Build Mesh
+            const foodGroup = meshBuilder();
+            scene.add(foodGroup);
+
+            // Mouse / Touch Rotation Interactions
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            let autoRotateSpeed = 0.008;
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                foodGroup.rotation.y += deltaX * 0.01;
+                foodGroup.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            // Touch events for mobile
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+                foodGroup.rotation.y += deltaX * 0.01;
+                foodGroup.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            });
+
+            window.addEventListener('touchend', () => { isDragging = false; });
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+                if (!isDragging) {
+                    foodGroup.rotation.y += autoRotateSpeed;
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Window resize handler
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        // Hero 3D Croissant/Pastry
+        function initHero3D() {
+            const container = document.getElementById('hero-canvas-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+            const pLight = new THREE.PointLight(0xD4AF37, 4, 30);
+            pLight.position.set(3, 3, 3);
+            scene.add(pLight);
+
+            // Create a luxurious gold torus knot representing luxury pastry
+            const geometry = new THREE.TorusKnotGeometry(1, 0.35, 100, 16);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xD4AF37,
+                metalness: 0.85,
+                roughness: 0.2,
+                wireframe: false
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            let isDragging = false;
+            let prevMouse = { x: 0, y: 0 };
+
+            container.addEventListener('mousedown', (e) => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                mesh.rotation.y += (e.clientX - prevMouse.x) * 0.01;
+                mesh.rotation.x += (e.clientY - prevMouse.y) * 0.01;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (!isDragging) {
+                    mesh.rotation.y += 0.007;
+                    mesh.rotation.x += 0.003;
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // Procedural 3D Mesh Builders for Burger, Pizza, Cake
+        function createBurgerMesh() {
+            const group = new THREE.Group();
+            const matGold = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.7, roughness: 0.3 });
+            const matBun = new THREE.MeshStandardMaterial({ color: 0xc68b59, roughness: 0.6 });
+            const matPatty = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.9 });
+            const matLettuce = new THREE.MeshStandardMaterial({ color: 0x2e8b57, roughness: 0.5 });
+
+            // Bottom Bun
+            const bottomBun = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.3, 0.4, 32), matBun);
+            bottomBun.position.y = -0.8;
+            group.add(bottomBun);
+
+            // Patty
+            const patty = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 0.3, 32), matPatty);
+            patty.position.y = -0.4;
+            group.add(patty);
+
+            // Lettuce
+            const lettuce = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.2, 16, 32), matLettuce);
+            lettuce.rotation.x = Math.PI / 2;
+            lettuce.position.y = -0.15;
+            group.add(lettuce);
+
+            // Top Bun
+            const topBun = new THREE.Mesh(new THREE.SphereGeometry(1.3, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), matBun);
+            topBun.position.y = 0.1;
+            group.add(topBun);
+
+            return group;
+        }
+
+        function createPizzaMesh() {
+            const group = new THREE.Group();
+            const matCrust = new THREE.MeshStandardMaterial({ color: 0xd2b48c, roughness: 0.7 });
+            const matCheese = new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 });
+            const matPepperoni = new THREE.MeshStandardMaterial({ color: 0xb22222, roughness: 0.6 });
+
+            // Base Crust
+            const base = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.15, 32), matCrust);
+            group.add(base);
+
+            // Cheese layer
+            const cheese = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.18, 32), matCheese);
+            group.add(cheese);
+
+            // Toppings (Pepperoni dots)
+            for (let i = 0; i < 5; i++) {
+                const pep = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16), matPepperoni);
+                const angle = (i / 5) * Math.PI * 2;
+                pep.position.set(Math.cos(angle) * 0.7, 0.12, Math.sin(angle) * 0.7);
+                group.add(pep);
+            }
+
+            group.rotation.x = 0.4;
+            return group;
+        }
+
+        function createCakeMesh() {
+            const group = new THREE.Group();
+            const matCake = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.5 });
+            const matGlaze = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.9, roughness: 0.1 });
+
+            // Cake body
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.2, 1.2, 32), matCake);
+            group.add(body);
+
+            // Top Gold Dome
+            const dome = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), matGlaze);
+            dome.position.y = 0.6;
+            group.add(dome);
+
+            return group;
+        }
+    </script>
+</body>
+</html>
